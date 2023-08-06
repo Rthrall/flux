@@ -5,7 +5,7 @@ metadata:
   namespace: metallb-system
 data:
   values.yaml: |-  
-    # Copyright VMware, Inc.
+    # Copyright VMware, Inc..
     # SPDX-License-Identifier: APACHE-2.0
 
     ## @section Global parameters
