@@ -5,9 +5,7 @@ metadata:
   namespace: metallb-system
 data:
   values.yaml: |-  
-    # Copyright VMware, Inc..
-    # SPDX-License-Identifier: APACHE-2.0
-
+    # <upstream values go here>
     ## @section Global parameters
     ## Global Docker image parameters
     ## Please, note that this will override the image parameters, including dependencies, configured to use the global value
@@ -23,7 +21,8 @@ data:
       ##   - myRegistryKeySecretName
       ##
       imagePullSecrets: []
-
+    existingConfigMap: metallb-config
+    
     ## @section Common parameters
 
     ## @param kubeVersion Force target Kubernetes version (using Helm capabilities if not set)
@@ -40,7 +39,9 @@ data:
     commonLabels: {}
     ## @param commonAnnotations Add annotations to all the deployed resources
     ##
-    commonAnnotations: {}
+    commonAnnotations: {
+      configmap.reloader.stakater.com/reload: "metallb-config"
+    }
     ## @param extraDeploy Array of extra objects to deploy with the release
     ##
     extraDeploy: []
@@ -59,9 +60,6 @@ data:
       ##
       args:
         - infinity
-    ## @param installCRDs Flag to install metallb CRDs
-    ##
-    installCRDs: true
     ## @section MetalLB parameters
 
     ## RBAC creation for controller and speaker
@@ -80,7 +78,7 @@ data:
     ##
     networkPolicy:
       ## @param networkPolicy.enabled Enable NetworkPolicy
-      ## Prometheus scraping of the controller and webhook traffic
+      ## Prometheus scraping of the controller
       ##
       enabled: false
       ## @param networkPolicy.ingressNSMatchLabels Allow connections from other namespaces
@@ -111,7 +109,7 @@ data:
       image:
         registry: docker.io
         repository: bitnami/metallb-controller
-        tag: 0.13.10-debian-11-r53
+        tag: 0.13.7-debian-11-r9
         digest: ""
         ## Specify a imagePullPolicy
         ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
@@ -394,10 +392,6 @@ data:
       ##
       customReadinessProbe: {}
 
-      ## @param controller.logLevel Sets the controller log level. Does not work if the args are overridden
-      ##
-      logLevel: "info"
-
       ## @section Metallb controller Prometheus metrics export
       ##
       metrics:
@@ -462,11 +456,6 @@ data:
     ## ref: https://hub.docker.com/r/bitnami/metallb-speaker/tags
     ##
     speaker:
-      ## @param speaker.enabled Whether to enable BGP speakers or not
-      ## ref: https://metallb.universe.tf/configuration/calico/#the-easy-way
-      ## Some CNI implementations (e.g. Calico) does not require speakers
-      ##
-      enabled: true
       ## @param speaker.image.registry MetalLB Speaker image registry
       ## @param speaker.image.repository MetalLB Speaker image repository
       ## @param speaker.image.tag MetalLB Speaker  image tag (immutable tags are recommended)
@@ -477,7 +466,7 @@ data:
       image:
         registry: docker.io
         repository: bitnami/metallb-speaker
-        tag: 0.13.10-debian-11-r53
+        tag: 0.13.7-debian-11-r8
         digest: ""
         ## Specify a imagePullPolicy
         ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
@@ -757,9 +746,7 @@ data:
       ## @param speaker.customReadinessProbe Custom readiness probe for the Web component
       ##
       customReadinessProbe: {}
-      ## @param speaker.logLevel Sets the speaker log level. Does not work if the args are overridden
-      ##
-      logLevel: "info"
+
       ## @section Speaker Prometheus metrics export
       metrics:
         ## @param speaker.metrics.enabled Enable the export of Prometheus metrics
